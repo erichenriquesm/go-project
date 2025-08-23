@@ -1,11 +1,13 @@
 package main
 
-import "go-project/domain/user"
+import "github.com/gin-gonic/gin"
 
 func main() {
-	createUser(user.CreateUser{})
-}
-
-func createUser(createUser user.CreateUserContract) {
-	createUser.CreateUser()
+	server := gin.Default()
+	server.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
+	server.Run(":81")
 }
