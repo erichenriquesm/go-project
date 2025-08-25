@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"go-project/model"
 	"go-project/usecase"
 	"net/http"
 
@@ -11,9 +12,9 @@ type productController struct {
 	productUsecase usecase.ProductUsecase
 }
 
-func GetProductController(productUseCase usecase.ProductUsecase) productController {
+func GetProductController(productUsecase usecase.ProductUsecase) productController {
 	return productController{
-		productUsecase: productUseCase,
+		productUsecase: productUsecase,
 	}
 }
 
@@ -27,4 +28,21 @@ func (pc *productController) GetProducts(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"products": products,
 	})
+}
+
+func (pc *productController) CreateProduct(ctx *gin.Context) {
+	var product model.Product
+	err := ctx.BindJSON(&product)
+
+	if err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	insertedProduct, err := pc.productUsecase.CreateProduct(product)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, err)
+	}
+
+	ctx.JSON(http.StatusCreated, insertedProduct)
 }
