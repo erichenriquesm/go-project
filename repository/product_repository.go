@@ -70,3 +70,31 @@ func (pr *ProductRepostiroy) CreateProduct(product model.Product) (int, error) {
 	query.Close()
 	return id, nil
 }
+
+func (pr *ProductRepostiroy) FindProductById(productId int) (*model.Product, error) {
+	query, err := pr.connection.Prepare("SELECT * FROM product WHERE id = $1 LIMIT 1")
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	var product model.Product
+
+	err = query.QueryRow(productId).Scan(
+		&product.Id,
+		&product.Name,
+		&product.Price,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return &product, nil
+}
