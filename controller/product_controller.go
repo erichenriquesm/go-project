@@ -3,6 +3,7 @@ package controller
 import (
 	"go-project/model"
 	"go-project/usecase"
+	"go-project/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -32,10 +33,10 @@ func (pc *productController) GetProducts(ctx *gin.Context) {
 
 func (pc *productController) CreateProduct(ctx *gin.Context) {
 	var product model.Product
-	err := ctx.BindJSON(&product)
 
-	if err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, err)
+	if errs := utils.ValidateJSON(ctx, &product); errs != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"errors": errs})
+		return
 	}
 
 	insertedProduct, err := pc.productUsecase.CreateProduct(product)
