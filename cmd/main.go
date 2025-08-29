@@ -7,9 +7,14 @@ import (
 	"go-project/usecase"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"	
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
 	dbConnection, err := db.ConnectDB()
 
 	if err != nil {

@@ -17,7 +17,7 @@ func GetProductRepository(connection *sql.DB) ProductRepostiroy {
 }
 
 func (pr *ProductRepostiroy) GetProducts() ([]model.Product, error) {
-	query := "SELECT * FROM product"
+	query := "SELECT * FROM products"
 	rows, err := pr.connection.Query(query)
 
 	if err != nil {
@@ -50,8 +50,8 @@ func (pr *ProductRepostiroy) GetProducts() ([]model.Product, error) {
 
 func (pr *ProductRepostiroy) CreateProduct(product model.Product) (int, error) {
 	var id int
-	query, err := pr.connection.Prepare("INSERT INTO product " +
-		"(product_name, price)" +
+	query, err := pr.connection.Prepare("INSERT INTO products " +
+		"(name, price)" +
 		"VALUES ($1, $2) RETURNING id",
 	)
 
@@ -72,7 +72,7 @@ func (pr *ProductRepostiroy) CreateProduct(product model.Product) (int, error) {
 }
 
 func (pr *ProductRepostiroy) FindProductById(productId int) (*model.Product, error) {
-	query, err := pr.connection.Prepare("SELECT * FROM product WHERE id = $1 LIMIT 1")
+	query, err := pr.connection.Prepare("SELECT * FROM products WHERE id = $1 LIMIT 1")
 
 	if err != nil {
 		fmt.Println(err)

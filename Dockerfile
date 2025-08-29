@@ -1,16 +1,12 @@
 FROM golang:1.23
 
-# set working directory
-WORKDIR /go/src/app
+WORKDIR /app
 
-# Copy the source code
+COPY go.mod go.sum ./
+RUN go mod download
+
 COPY . .
 
-# EXPOSE the port
 EXPOSE 81
 
-# Build the Go app
-RUN go build -o main cmd/main.go
-
-# Run the executable
-CMD ["./main"]
+CMD go run ./cmd/main.go

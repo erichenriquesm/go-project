@@ -2,12 +2,14 @@ version: "3.9"
 
 services:
   go_app:
-    image: goproject:latest
     build: .
     ports:
       - "81:81"
     depends_on:
       - go_db
+    volumes:
+      - .:/app
+
   go_db:
     image: postgres:12
     environment:
