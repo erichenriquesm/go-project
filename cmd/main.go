@@ -7,7 +7,7 @@ import (
 	"go-project/usecase"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"	
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -38,6 +38,8 @@ func main() {
 	server.GET("/products", productController.GetProducts)
 	server.POST("/product", productController.CreateProduct)
 	server.GET("/product/:productId", productController.GetProductById)
+	server.PUT("/product/:productId", productController.UpdateProductById)
+	server.DELETE("/product/:productId", productController.DeleteProductById)
 
 	server.Run(":81")
 }

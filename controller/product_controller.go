@@ -35,8 +35,8 @@ func (pc *productController) GetProducts(ctx *gin.Context) {
 func (pc *productController) CreateProduct(ctx *gin.Context) {
 	var product model.Product
 
-	if errs := utils.ValidateJSON(ctx, &product); errs != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"errors": errs})
+	if err := utils.ValidateJSON(ctx, &product); err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"errors": err})
 		return
 	}
 
@@ -82,4 +82,73 @@ func (pc *productController) GetProductById(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, product)
+}
+
+func (pc *productController) UpdateProductById(ctx *gin.Context) {
+	productId, err := strconv.Atoi(ctx.Param("productId"))
+
+	if err != nil {
+		response := model.Response{
+			Message: "Product id must be a int",
+		}
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	var product model.Product
+
+	if err := utils.ValidateJSON(ctx, &product); err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"errors": err})
+		return
+	}
+
+	updatedProduct, err := pc.productUsecase.UpdateProductById(productId, product)
+
+	if updatedProduct == nil {
+		response := model.Response{
+			Message: "Product not found",
+		}
+		ctx.JSON(http.StatusNotFound, response)
+		return
+	}
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, updatedProduct)
+}
+
+func (pc *productController) DeleteProductById(ctx *gin.Context) {
+	productId, err := strconv.Atoi(ctx.Param("productId"))
+
+	if err != nil {
+		response := model.Response{
+			Message: "Product id must be a int",
+		}
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	result, err := pc.productUsecase.DeleteProductById(productId)
+
+	if !result {
+		response := model.Response{
+			Message: "Product not found",
+		}
+		ctx.JSON(http.StatusNotFound, response)
+		return
+	}
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	response := model.Response{
+		Message: "Product deleted!",
+	}
+
+	ctx.JSON(http.StatusOK, response)
 }

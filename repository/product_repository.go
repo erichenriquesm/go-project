@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"go-project/model"
 )
@@ -97,4 +98,71 @@ func (pr *ProductRepostiroy) FindProductById(productId int) (*model.Product, err
 	}
 
 	return &product, nil
+}
+
+func (pr *ProductRepostiroy) UpdateProductById(productId int, productData model.Product) (*model.Product, error) {
+
+	if !pr.exist(productId) {
+		return nil, errors.New("product doesn't exists")
+	}
+
+	query, err := pr.connection.Prepare("UPDATE products SET name=$1, price=$2 WHERE id=$3")
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	_, err = query.Exec(productData.Name, productData.Price, productId)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	productData.Id = productId
+
+	return &productData, nil
+}
+
+func (pr *ProductRepostiroy) DeleteProductById(productId int) (bool, error) {
+
+	if !pr.exist(productId) {
+		return false, errors.New("product doesn't exists")
+	}
+
+	query, err := pr.connection.Prepare("DELETE FROM products WHERE id=$1")
+
+	if err != nil {
+		fmt.Println(err)
+		return false, err
+	}
+
+	_, err = query.Exec(productId)
+
+	if err != nil {
+		fmt.Println(err)
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (pr *ProductRepostiroy) exist(productId int) (exist bool) {
+	exists := false
+	query, err := pr.connection.Prepare("SELECT EXISTS(SELECT id FROM products WHERE id=$1)")
+
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	err = query.QueryRow(productId).Scan(&exists)
+
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	return exists
 }
